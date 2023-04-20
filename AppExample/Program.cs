@@ -47,6 +47,8 @@ var builder = Host.CreateDefaultBuilder()
 
         services.AddHostedService<AppHostedService>();
         services.AddOptions<AppHostSettings>().Bind(hostContext.Configuration.GetSection("DbInitialSettings"));
+
+        services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
     })
     .Build();
 
