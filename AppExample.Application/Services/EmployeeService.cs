@@ -84,7 +84,7 @@ public class EmployeeService : IEmployeeService
     {
         await using var db = await _dbContexFactory.CreateDbContextAsync().ConfigureAwait(false);
 
-        var employee = new Company() { Id = id };
+        var employee = new Employee() { Id = id };
         db.Attach(employee);
         db.Remove(employee);
 
