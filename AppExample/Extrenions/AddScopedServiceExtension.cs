@@ -14,5 +14,7 @@ public static class AddScopedServiceExtension
 
         // Your services
         service.AddScoped<ISaveService<AppExampleDb>, SaveService>();
+        service.AddScoped<ICompanyService, CompanyService>();
+        service.AddScoped<IEmployeeService, EmployeeService>();
     }
 }
