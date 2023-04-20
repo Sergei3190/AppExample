@@ -1,9 +1,8 @@
 ﻿using System.Diagnostics;
 
 using AppExample.Contract.Services;
+using AppExample.Contract.Workers.Interfeices;
 using AppExample.HostedServices.Settings;
-using AppExample.Workers;
-using AppExample.Workers.Interfeices;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -59,7 +58,7 @@ namespace AppExample.HostedServices
 
                         await using (var scope = _scopeFactory.CreateAsyncScope())
                         {
-                            var appWorker = scope.ServiceProvider.GetRequiredService<IAppWorker>();
+                            var appWorker = scope.ServiceProvider.GetRequiredService<IWorker>();
 
                             await appWorker.RunAsync().ConfigureAwait(false);
                         }

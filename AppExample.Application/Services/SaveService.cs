@@ -22,7 +22,7 @@ public class SaveService : ISaveService<AppExampleDb>
         }
         catch (Exception ex)
         {
-            _logger.LogError("Ошибка при сохранении данных: {0}", ex);
+            _logger.LogError("Ошибка при сохранении данных: {0}", ex.Message);
             throw;
         }
     }

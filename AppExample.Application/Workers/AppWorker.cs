@@ -1,25 +1,31 @@
 ﻿using AppExample.Contract.Dto;
+using AppExample.Contract.Events;
+using AppExample.Contract.Notifiers;
 using AppExample.Contract.Services;
-using AppExample.Workers.Interfeices;
+using AppExample.Contract.Subscribers;
+using AppExample.Contract.Workers.Interfeices;
 
 using Microsoft.Extensions.Logging;
 
-namespace AppExample.Workers;
+namespace AppExample.Application.Workers;
 
-public class AppWorker : IAppWorker
+public class AppWorker : IWorker
 {
     private readonly ILogger<AppWorker> _logger;
     private readonly ICompanyService _companyService;
     private readonly IEmployeeService _employeeService;
+    private readonly IEntityChangeNotifier<EntityChangeEventArgs> _changeNotifier;
 
     public AppWorker(ILogger<AppWorker> logger,
         ICompanyService companyService,
-        IEmployeeService employeeService
-        )
+        IEmployeeService employeeService,
+        IEntityChangeNotifier<EntityChangeEventArgs> changeNotifier,
+        ISubscriber _)
     {
         _logger = logger;
         _companyService = companyService;
         _employeeService = employeeService;
+        _changeNotifier = changeNotifier;
     }
 
     public async Task<bool> RunAsync()
@@ -27,7 +33,12 @@ public class AppWorker : IAppWorker
         var company = new CompanyDto() { Name = "BMW" };
 
         var companyId = await _companyService.SaveAsync(company).ConfigureAwait(false);
-        company = await _companyService.GetAsync(companyId).ConfigureAwait(false);  
+        company = await _companyService.GetAsync(companyId).ConfigureAwait(false);
+        await _changeNotifier.SendNotificationAsync(new EntityChangeEventArgs($"Создана компания \"{company}\"")).ConfigureAwait(false);
+
+        company!.Name = "Moskvich";
+        await _companyService.SaveAsync(company).ConfigureAwait(false);
+        await _changeNotifier.SendNotificationAsync(new EntityChangeEventArgs($"Изменена компания \"{company}\"")).ConfigureAwait(false);
 
         var employee = new EmployeeDto()
         {
@@ -40,9 +51,17 @@ public class AppWorker : IAppWorker
 
         var employeeId = await _employeeService.SaveAsync(employee).ConfigureAwait(false);
         employee = await _employeeService.GetAsync(employeeId).ConfigureAwait(false);
+        await _changeNotifier.SendNotificationAsync(new EntityChangeEventArgs($"Создан сотрудник \"{employee}\"")).ConfigureAwait(false);
+
+        employee!.Age = 100;
+        await _employeeService.SaveAsync(employee).ConfigureAwait(false);
+        await _changeNotifier.SendNotificationAsync(new EntityChangeEventArgs($"Изменен возраст сотрудника \"{employee}\"")).ConfigureAwait(false);
 
         await _employeeService.DeleteAsync(employeeId).ConfigureAwait(false);
+        await _changeNotifier.SendNotificationAsync(new EntityChangeEventArgs($"Удален сотрудник \"{employee}\"")).ConfigureAwait(false);
+
         await _companyService.DeleteAsync(companyId).ConfigureAwait(false);
+        await _changeNotifier.SendNotificationAsync(new EntityChangeEventArgs($"Удалена компания \"{company}\"")).ConfigureAwait(false);
 
         var companyList = await _companyService.GetListAsync().ConfigureAwait(false);
         _logger.LogInformation($"Список компаний:{Environment.NewLine}" +
