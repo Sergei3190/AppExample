@@ -3,7 +3,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace AppExample.Domain.Entities.Public;
+namespace AppExample.Domain.Entities.App;
 
 public class Company : NamedEntity
 {

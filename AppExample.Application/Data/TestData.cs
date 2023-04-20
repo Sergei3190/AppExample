@@ -1,4 +1,4 @@
-﻿using AppExample.Domain.Entities.Public;
+﻿using AppExample.Domain.Entities.App;
 
 namespace AppExample.Data;
 
