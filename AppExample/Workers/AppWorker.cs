@@ -45,11 +45,11 @@ public class AppWorker : IAppWorker
         await _companyService.DeleteAsync(companyId).ConfigureAwait(false);
 
         var companyList = await _companyService.GetListAsync().ConfigureAwait(false);
-        await Console.Out.WriteLineAsync($"Список компаний:{Environment.NewLine}" +
+        _logger.LogInformation($"Список компаний:{Environment.NewLine}" +
             $"{string.Join(Environment.NewLine, companyList)}");
 
         var employeeList = await _employeeService.GetListAsync().ConfigureAwait(false);
-        await Console.Out.WriteLineAsync($"Список сотрудников:{Environment.NewLine}" +
+        _logger.LogInformation($"Список сотрудников:{Environment.NewLine}" +
             $"{string.Join(Environment.NewLine, employeeList)}");
 
         return true;
