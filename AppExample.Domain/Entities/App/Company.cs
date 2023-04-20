@@ -14,6 +14,8 @@ public class Company : NamedEntity
 
     public ICollection<Employee> Employees { get; set; }
 
+    public override string ToString() => $"(Id: {Id}) {Name}";
+
     public class Map : IEntityTypeConfiguration<Company>
     {
         public void Configure(EntityTypeBuilder<Company> builder)
