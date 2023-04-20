@@ -1,7 +1,4 @@
-﻿using AppExample.Workers;
-using AppExample.Workers.Interfeices;
-
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 namespace AppExample.Extrenions;
 
@@ -12,6 +9,5 @@ public static class AddSingletonServiceExtension
         ArgumentNullException.ThrowIfNull(nameof(service));
 
         // Your services
-        service.AddSingleton<IAppWorker, AppWorker>();
     }
 }

@@ -35,6 +35,7 @@ public class EmployeeService : IEmployeeService
 
         var entities = await db.Employees
             .AsNoTracking()
+            .OrderBy(x => x.LastName)
             .Skip(0)
             .Take(10)
             .ToArrayAsync()

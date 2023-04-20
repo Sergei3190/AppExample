@@ -10,4 +10,6 @@ public class EmployeeDto : BaseDto
     public string? MiddleName { get; set; }
 
     public Guid CompanyId { get; set; }
+
+    public override string ToString() => $"(Id: {Id}) {LastName} {FirstName} {MiddleName} - age: {Age}";
 }

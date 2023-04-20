@@ -1,5 +1,8 @@
-﻿using AppExample.Contract.Services;
+﻿using System.Diagnostics;
+
+using AppExample.Contract.Services;
 using AppExample.HostedServices.Settings;
+using AppExample.Workers;
 using AppExample.Workers.Interfeices;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -15,21 +18,18 @@ namespace AppExample.HostedServices
         private readonly IHostApplicationLifetime _appLifetime;
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly IOptions<AppHostSettings> _options;
-        private readonly IAppWorker _appWorker;
 
         private int? _exitCode;
 
         public AppHostedService(ILogger<AppHostedService> logger,
             IHostApplicationLifetime appLifetime,
             IServiceScopeFactory scopeFactory,
-            IOptions<AppHostSettings> options,
-            IAppWorker appWorker)
+            IOptions<AppHostSettings> options)
         {
             _logger = logger;
             _appLifetime = appLifetime;
             _scopeFactory = scopeFactory;
             _options = options;
-            _appWorker = appWorker;
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
@@ -42,8 +42,11 @@ namespace AppExample.HostedServices
                 {
                     try
                     {
+                        var stopWatch = new Stopwatch();
+
                         _logger.LogInformation("Запуск воркера...");
 
+                        stopWatch.Start();
                         await using (var scope = _scopeFactory.CreateAsyncScope())
                         {
                             var dbInitializer = scope.ServiceProvider.GetRequiredService<IDbInitializerService>();
@@ -54,13 +57,19 @@ namespace AppExample.HostedServices
                             .ConfigureAwait(false);
                         }
 
-                        await _appWorker.RunAsync().ConfigureAwait(false);
+                        await using (var scope = _scopeFactory.CreateAsyncScope())
+                        {
+                            var appWorker = scope.ServiceProvider.GetRequiredService<IAppWorker>();
+
+                            await appWorker.RunAsync().ConfigureAwait(false);
+                        }
+                        stopWatch.Stop();
 
                         await Task.Delay(1000);
 
                         _exitCode = 0;
 
-                        _logger.LogInformation("Воркер отработал успешно, код: {0}", _exitCode);
+                        _logger.LogInformation("Воркер отработал успешно, код: {0}, время выполнения (сек): {1} ", _exitCode, stopWatch.Elapsed.Seconds);
                     }
                     catch (Exception ex)
                     {

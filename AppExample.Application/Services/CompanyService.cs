@@ -9,8 +9,6 @@ using Microsoft.EntityFrameworkCore;
 
 using Microsoft.Extensions.Logging;
 
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
-
 namespace AppExample.Application.Services;
 
 public class CompanyService : ICompanyService
@@ -25,7 +23,7 @@ public class CompanyService : ICompanyService
         IMapper mapper,
         ISaveService<AppExampleDb> saveService)
     {
-        _dbContexFactory = dbContextFactory;    
+        _dbContexFactory = dbContextFactory;
         _logger = logger;
         _mapper = mapper;
         _saveService = saveService;
@@ -37,6 +35,7 @@ public class CompanyService : ICompanyService
 
         var entities = await db.Companies
             .AsNoTracking()
+            .OrderBy(x => x.Name)
             .Skip(0)
             .Take(10)
             .ToArrayAsync()
@@ -86,12 +85,12 @@ public class CompanyService : ICompanyService
         await using var db = await _dbContexFactory.CreateDbContextAsync().ConfigureAwait(false);
 
         var company = new Company() { Id = id };
-        db.Attach(company); 
+        db.Attach(company);
         db.Remove(company);
 
-        await _saveService.SaveAsync(db).ConfigureAwait(false);   
+        await _saveService.SaveAsync(db).ConfigureAwait(false);
 
-        _logger.LogInformation("Компания c id = {0} успешно удалена", company.Id); 
+        _logger.LogInformation("Компания c id = {0} успешно удалена", company.Id);
 
         return true;
     }
