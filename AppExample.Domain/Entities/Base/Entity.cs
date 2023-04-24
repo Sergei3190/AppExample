@@ -35,6 +35,6 @@ public static class EntityConfiguration
     public static void MapEntity<TEntity>(this EntityTypeBuilder<TEntity> builder) where TEntity : Entity
     {
         builder.HasKey(x => x.Id);
-        builder.Property(x => x.Id).HasColumnName("id");
+        builder.Property(x => x.Id).HasColumnName("id").HasDefaultValueSql("NEWSEQUENTIALID()");
     }
 }
